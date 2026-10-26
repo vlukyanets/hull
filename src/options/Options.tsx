@@ -1,11 +1,12 @@
 import { useEffect, useState } from "preact/hooks"
-import { browserStore, configToml, saveConfig } from "../config"
+import { browserStore, configToml, saveConfig, type Store } from "../config"
 import { useConfig } from "../config/useConfig"
 
 type Status = { saved: true } | { saved: false; error: string } | undefined
 
-export function Options() {
-  const loaded = useConfig()
+// store: storage.local, or a store in memory in tests.
+export function Options({ store = browserStore }: { store?: Store }) {
+  const loaded = useConfig(store)
   const [text, setText] = useState<string>()
   const [status, setStatus] = useState<Status>()
 
@@ -23,7 +24,7 @@ export function Options() {
     // behind when the form is sent right after an input.
     const form = event.currentTarget as HTMLFormElement
     const toml = new FormData(form).get("config") as string
-    const result = await saveConfig(browserStore, toml)
+    const result = await saveConfig(store, toml)
     setStatus(result.ok ? { saved: true } : { saved: false, error: result.error })
   }
 

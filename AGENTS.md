@@ -33,7 +33,8 @@ then harden it. Working code beats documents.
 - Use library defaults. Add a setting, constant or timeout only when
   something breaks without it.
 - Test the logic in `src/config/` and `src/platform/` with vitest;
-  components only render.
+  components only render, except where a page's behavior needs a test,
+  in happy-dom (`// @vitest-environment happy-dom`).
 - Done means `npm run check` passed and `npm run dev` showed the change
   in Firefox; a change in `src/platform/` is also tried in Chromium. If a
   check failed or could not run, say so and show its output.
