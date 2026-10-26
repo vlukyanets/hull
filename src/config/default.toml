@@ -1,5 +1,13 @@
-# The config of a first run. The widgets are drawn in this order.
+# The config of a first run; change it on the options page of hull. The
+# widgets are drawn in this order.
 version = 1
 
 [layout]
-widgets = ["clock"]
+widgets = ["clock", "links"]
+
+[[groups]]
+name = "hull"
+links = [
+  { name = "Source", url = "https://github.com/vlukyanets/hull" },
+  { name = "Firefox add-ons", url = "https://addons.mozilla.org" },
+]
