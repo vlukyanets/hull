@@ -1,25 +1,7 @@
 import { describe, expect, test } from "vitest"
 import { configToml, loadConfig, saveConfig, watchConfig } from "."
+import { memoryStore } from "./memoryStore"
 import { parseConfig } from "./parse"
-import type { Store } from "./store"
-
-// storage.local in memory, with change events like the real one.
-function memoryStore(data: Record<string, unknown> = {}): Store {
-  const listeners = new Set<(key: string, value: unknown) => void>()
-  return {
-    async get(key) {
-      return structuredClone(data[key])
-    },
-    async set(key, value) {
-      data[key] = structuredClone(value)
-      for (const listener of listeners) listener(key, structuredClone(value))
-    },
-    onChange(listener) {
-      listeners.add(listener)
-      return () => listeners.delete(listener)
-    },
-  }
-}
 
 const mine = `version = 1
 [layout]

@@ -201,7 +201,11 @@ Neither browser shows an extension's new tab in a private window.
   in development.
 - **The options page reads the text box when it saves,** not the state of
   the last render, which can be behind when the form is sent right after
-  an input.
+  an input. `src/options/Options.test.tsx` sends the form in the same
+  tick as the input, in happy-dom, and fails on the old way.
+- **happy-dom for the few component tests.** Only in development, and
+  only where a page's behavior needs a test; the logic stays in
+  `src/config/` and `src/platform/`, tested without a DOM.
 - **Library defaults first.** A setting is added only when a default
   breaks something.
 
