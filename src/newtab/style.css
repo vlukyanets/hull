@@ -1,0 +1,31 @@
+:root {
+  color-scheme: light dark;
+  font-family: system-ui, sans-serif;
+}
+
+body {
+  margin: 0;
+  background: Canvas;
+  color: CanvasText;
+}
+
+.page {
+  display: grid;
+  place-content: center;
+  min-height: 100vh;
+}
+
+.clock {
+  text-align: center;
+}
+
+.clock-time {
+  font-size: 6rem;
+  font-weight: 300;
+  font-variant-numeric: tabular-nums;
+}
+
+.clock-date {
+  font-size: 1.25rem;
+  opacity: 0.7;
+}

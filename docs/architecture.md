@@ -49,8 +49,9 @@ open tab.
 
 ## Code map
 
-- `manifest.json`: Manifest V3, written by hand. The new-tab override,
-  the home page override for Firefox, the Gecko id, the permissions.
+- `public/manifest.json`: Manifest V3, written by hand. The new-tab
+  override, the home page override for Firefox, the Gecko id, the
+  permissions. Vite copies `public/` into `dist/` as it is.
 - `newtab.html`, `src/newtab/`: the page, the layout and edit mode.
 - `options.html`, `src/options/`: the TOML editor, import and export.
 - `src/widgets/`: `clock/`, `links/`, `search/`, `notes/`. A widget gets
@@ -61,7 +62,11 @@ open tab.
   browsers: search engines, the theme.
 - `src/sources/`: not built yet; the only code that will talk to
   programs outside the extension.
-- `default.toml`: the config of a first run.
+- `src/config/default.toml`: the config of a first run, bundled as text.
+- `scripts/`: `check.sh` behind `npm run check`, `lint.js` for
+  `web-ext lint`, `dev.sh` behind `npm run dev`.
+- `.github/workflows/check.yml`: `npm run check` on every pull request
+  and on `master`.
 
 ## The config
 
@@ -138,8 +143,10 @@ Neither browser shows an extension's new tab in a private window.
   checks before the call. A missing feature is not an error: the widget
   falls back or hides, and the page runs on.
 - Only `src/sources/` will talk to anything outside the extension.
-- Bad config never blanks the page. TOML that fails to parse or validate
-  is refused, with the line and the reason, and nothing is stored. A
+- Bad config never blanks the page. TOML that fails to parse is refused
+  with the line and the reason, TOML that fails to validate with the key
+  and the reason, such as `layout.widgets[1]: unknown widget "clok"`;
+  unknown keys are refused too, so a typo does not pass unseen. A
   stored config that fails validation is replaced by the defaults for
   that page, with a banner that says so.
 - All code ships in the bundle: no remote code, no `eval`, the default
@@ -162,6 +169,13 @@ Neither browser shows an extension's new tab in a private window.
   web-ext runs, lints and packages the build. WXT is the fallback when
   the browsers need manifests too different for one file, or hull grows
   a background script or content scripts.
+- **No `@preact/preset-vite`.** Vite compiles the JSX for Preact itself;
+  the preset's hot reload needs Vite's dev server, which an extension
+  build does not use, and it brings Babel.
+- **The lint fails on warnings, but one.** Preact sets `innerHTML` for
+  `dangerouslySetInnerHTML`, and `web-ext lint` warns about it in every
+  build. `scripts/lint.js` allows that one warning; `check.sh` fails on
+  `innerHTML` in `src/` instead.
 - **No background script yet.** The two pages need none.
 - **The config is stored as objects, TOML is for editing.** Edit mode
   changes the objects; TOML text would have to be rewritten on every
