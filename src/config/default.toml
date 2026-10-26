@@ -1,0 +1,5 @@
+# The config of a first run. The widgets are drawn in this order.
+version = 1
+
+[layout]
+widgets = ["clock"]

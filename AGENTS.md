@@ -10,7 +10,7 @@ then harden it. Working code beats documents.
 ## Layout
 
 - `src/newtab/`, `src/options/`: the two pages; `src/widgets/<name>/`:
-  one directory per widget. `manifest.json` is written by hand.
+  one directory per widget. `public/manifest.json` is written by hand.
 - `src/config/`: the config, TOML and storage; the only code that
   touches `browser.storage`.
 - `src/platform/`: the only code that calls APIs that differ between
