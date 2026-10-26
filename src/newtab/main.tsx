@@ -1,6 +1,6 @@
 import { render } from "preact"
-import { loadConfig } from "../config"
 import { App } from "./App"
+import "../base.css"
 import "./style.css"
 
-render(<App config={loadConfig()} />, document.getElementById("app")!)
+render(<App />, document.getElementById("app")!)

@@ -12,9 +12,11 @@ things: links to their services and sites, a search box and small
 widgets. The parts of the first version, in the order they are built:
 
 1. the new-tab page with the clock and date, from the default config;
-2. the links grid, from the config in `storage.local`;
+2. the links grid, from the config in `storage.local`, with a first
+   options page: the config as TOML in a text box, checked and saved;
 3. the search box;
-4. the options page: the TOML editor, import and export;
+4. the options page: import and export of TOML files, the list of search
+   engines;
 5. edit mode on the page: add, change, move and remove links;
 6. notes.
 
@@ -52,12 +54,17 @@ open tab.
 - `public/manifest.json`: Manifest V3, written by hand. The new-tab
   override, the home page override for Firefox, the Gecko id, the
   permissions. Vite copies `public/` into `dist/` as it is.
-- `newtab.html`, `src/newtab/`: the page, the layout and edit mode.
-- `options.html`, `src/options/`: the TOML editor, import and export.
+- `newtab.html`, `src/newtab/`: the page, the layout and edit mode. An
+  "Edit" link in the corner opens the options page.
+- `options.html`, `src/options/`: the TOML editor; import and export to
+  come. Firefox opens it from about:addons, in a tab of its own.
+- `src/base.css`: what every page shares.
 - `src/widgets/`: `clock/`, `links/`, `search/`, `notes/`. A widget gets
   its typed config as props and renders it.
 - `src/config/`: the schema, the defaults, TOML to config and back,
-  validation, migrations and storage.
+  validation, migrations and storage. `store.ts` is the part of
+  `storage.local` it uses, so tests run on a store in memory;
+  `useConfig` gives a page the config and follows every save.
 - `src/platform/`: checks and calls for APIs that differ between
   browsers: search engines, the theme.
 - `src/sources/`: not built yet; the only code that will talk to
@@ -94,12 +101,15 @@ links = [
   Import parses and validates it, then stores the config as plain
   objects. Export and the options page write TOML from the stored
   config, so comments of an imported file are not kept.
+- A link is `http` or `https`, nothing else: a link must never run code
+  (`javascript:`) or carry a document of its own (`data:`).
+- `groups` may be left out; it means no links.
 - `storage.local` holds two keys:
 
 | Key | Holds |
 | --- | --- |
 | `config` | the whole config |
-| `notes` | the notes |
+| `notes` | the notes, not built yet |
 
 - `version` is the version of the schema. A stored config of an older
   version is migrated when it is read, by a function in `src/config/`.
@@ -186,6 +196,12 @@ Neither browser shows an extension's new tab in a private window.
   own config until there is sync.
 - **Letter tiles, not favicons, for now.** Favicons would mean a request
   to every linked site.
+- **Types for `browser` from `@types/firefox-webext-browser`.** They are
+  made from Firefox's own API schemas, for the namespace hull uses; only
+  in development.
+- **The options page reads the text box when it saves,** not the state of
+  the last render, which can be behind when the form is sent right after
+  an input.
 - **Library defaults first.** A setting is added only when a default
   breaks something.
 

@@ -1,0 +1,23 @@
+/* Shared by every page. */
+
+:root {
+  color-scheme: light dark;
+  font-family: system-ui, sans-serif;
+}
+
+body {
+  margin: 0;
+  background: Canvas;
+  color: CanvasText;
+}
+
+a {
+  color: inherit;
+}
+
+.banner {
+  padding: 0.75rem 1rem;
+  border: 1px solid Mark;
+  border-radius: 0.5rem;
+  background: color-mix(in srgb, Mark 20%, Canvas);
+}
