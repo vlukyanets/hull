@@ -71,7 +71,8 @@ open tab.
   programs outside the extension.
 - `src/config/default.toml`: the config of a first run, bundled as text.
 - `scripts/`: `check.sh` behind `npm run check`, `lint.js` for
-  `web-ext lint`, `dev.sh` behind `npm run dev`.
+  `web-ext lint`, `dev.sh` behind `npm run dev`, `chromium/` behind
+  `npm run dev:chromium`.
 - `.github/workflows/check.yml`: `npm run check` on every pull request
   and on `master`.
 

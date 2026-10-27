@@ -12,7 +12,9 @@ plan is in [`docs/architecture.md`](docs/architecture.md).
 ## Requirements
 
 - Node.js 26 with npm, see `.nvmrc`.
-- Firefox; Chromium to try the other target.
+- Firefox.
+- Docker and a Wayland desktop to try Chromium; Chromium itself runs in a
+  container and need not be installed.
 
 ## Development
 
@@ -20,12 +22,18 @@ plan is in [`docs/architecture.md`](docs/architecture.md).
 npm ci                  # install
 npm run check           # type check, tests, build, web-ext lint
 npm run dev             # build on change, open a fresh Firefox with hull
-npm run dev:chromium    # the same in Chromium
+npm run dev:chromium    # the same in Chromium, in a container
 npm run package         # a zip in web-ext-artifacts/
 ```
 
 `npm run dev` opens the browser before it installs hull, so the first tab
 stays empty: open a new tab to see hull.
+
+`npm run dev:chromium` builds a Docker image with Node and Debian's
+Chromium the first time, which downloads them. Chromium opens in a window
+on the desktop; the container sees the repo read-only and the Wayland
+socket. Docker's seccomp filter is off for it, so Chromium's own sandbox
+can run. `docker rmi hull-chromium` removes the image.
 
 `dist/` and `web-ext-artifacts/` are generated and not in git.
 
