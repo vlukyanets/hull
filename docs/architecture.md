@@ -56,9 +56,9 @@ reads the config again when it is shown from that cache.
   permissions. Vite copies `public/` into `dist/` as it is.
 - `newtab.html`, `src/newtab/`: the page, the layout and edit mode. An
   "Edit" link in the corner opens the options page.
-- `options.html`, `src/options/`: the TOML editor; import and export to
-  come. Firefox opens it from about:addons, in a tab of its own. A link
-  at the top goes back to the new tab.
+- `options.html`, `src/options/`: the TOML editor, import and export.
+  Firefox opens it from about:addons, in a tab of its own. A link at the
+  top goes back to the new tab.
 - `src/base.css`: what every page shares.
 - `src/widgets/`: `clock/`, `links/`, `search/`, `notes/`. A widget gets
   its typed config as props and renders it.
@@ -96,9 +96,12 @@ links = [
 ```
 
 - TOML is the format to edit and to exchange, not the format stored.
-  Import parses and validates it, then stores the config as plain
-  objects. Export and the options page write TOML from the stored
-  config, so comments of an imported file are not kept.
+  Import parses and validates a file and stores it at once, as plain
+  objects, in place of the config and of any unsaved text in the editor;
+  a file with an error changes nothing. Export and the options page
+  write TOML from the stored config, so an exported file always imports,
+  and comments of an imported file are not kept. Export is a download of
+  `hull.toml` from the page, with no `downloads` permission.
 - A link is `http` or `https`, nothing else: a link must never run code
   (`javascript:`) or carry a document of its own (`data:`).
 - `groups` may be left out; it means no links.

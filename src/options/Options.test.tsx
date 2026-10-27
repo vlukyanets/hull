@@ -43,3 +43,46 @@ test("saves nothing and says why when the text is bad", async () => {
   expect(data).toEqual({})
   expect(root.querySelector(".status")!.textContent).toBe("Not saved: version: must be 1")
 })
+
+// Picks a file in the import field, as the file dialog does.
+function pick(root: HTMLElement, text: string) {
+  const input = root.querySelector<HTMLInputElement>("input[type=file]")!
+  const file = new File([text], "hull.toml", { type: "application/toml" })
+  Object.defineProperty(input, "files", { value: [file], configurable: true })
+  input.dispatchEvent(new Event("change", { bubbles: true }))
+}
+
+test("saves an imported file at once and shows it in the editor", async () => {
+  const data: Record<string, unknown> = {}
+  const root = document.createElement("div")
+  render(<Options store={memoryStore(data)} />, root)
+  await settle()
+
+  // Unsaved text in the editor is replaced by the import.
+  const textarea = root.querySelector("textarea")!
+  textarea.value = "not saved"
+  textarea.dispatchEvent(new Event("input", { bubbles: true }))
+  pick(root, '# mine\nversion = 1\n[layout]\nwidgets = ["links"]\n')
+  await settle()
+
+  expect(data.config).toEqual({ version: 1, layout: { widgets: ["links"] }, groups: [] })
+  expect(root.querySelector("textarea")!.value).toContain('widgets = [ "links" ]')
+  expect(root.querySelector(".status")!.textContent).toBe("Imported hull.toml.")
+})
+
+test("imports nothing and says why when the file is bad", async () => {
+  const data: Record<string, unknown> = {}
+  const root = document.createElement("div")
+  render(<Options store={memoryStore(data)} />, root)
+  await settle()
+  const before = root.querySelector("textarea")!.value
+
+  pick(root, "version = 2\n[layout]\nwidgets = []\n")
+  await settle()
+
+  expect(data).toEqual({})
+  expect(root.querySelector("textarea")!.value).toBe(before)
+  expect(root.querySelector(".status")!.textContent).toBe(
+    "Not imported: version: must be 1",
+  )
+})

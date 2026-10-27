@@ -7,7 +7,8 @@ with the config in TOML. Later, widgets for your own programs.
 The project is an early prototype: the new-tab page shows a clock, the
 date, a search box and your links. You edit the config as TOML on the
 options page: the "Edit" link in the corner of the new tab, or hull in
-about:addons. The plan is in [`docs/architecture.md`](docs/architecture.md).
+about:addons; it also imports and exports the config as a TOML file. The
+plan is in [`docs/architecture.md`](docs/architecture.md).
 
 ## Requirements
 
