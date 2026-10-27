@@ -1,5 +1,5 @@
 import { parse, TomlError } from "smol-toml"
-import { WIDGETS, type Config, type Group, type Link, type Search, type Widget } from "./schema"
+import { WIDGETS, type Config, type Group, type Link, type Widget } from "./schema"
 
 export type ParseResult =
   | { ok: true; config: Config }
@@ -33,31 +33,14 @@ export function validateConfig(data: unknown): ParseResult {
 }
 
 function validate(data: unknown): Config {
-  const root = table(data, "", ["version", "layout", "search", "groups"])
+  const root = table(data, "", ["version", "layout", "groups"])
   if (root.version !== 1) throw new Invalid("version: must be 1")
   const layout = table(root.layout, "layout", ["widgets"])
   return {
     version: 1,
     layout: { widgets: widgets(layout.widgets) },
-    search: search(root.search ?? {}),
     groups: list(root.groups ?? [], "groups").map(group),
   }
-}
-
-function search(value: unknown): Search {
-  const t = table(value, "search", ["engine", "url"])
-  if (t.engine !== undefined && t.url !== undefined) {
-    throw new Invalid("search: give engine or url, not both")
-  }
-  if (t.engine !== undefined) return { engine: name(t.engine, "search.engine") }
-  if (t.url !== undefined) {
-    const template = url(t.url, "search.url")
-    if (!template.includes("%s")) {
-      throw new Invalid("search.url: must have %s where the query goes")
-    }
-    return { url: template }
-  }
-  return {}
 }
 
 function table(
