@@ -3,7 +3,7 @@
 version = 1
 
 [layout]
-widgets = ["clock", "links"]
+widgets = ["clock", "search", "links"]
 
 [[groups]]
 name = "hull"

@@ -15,7 +15,7 @@ describe("loadConfig", () => {
   test("gives the default config on a first run", async () => {
     const loaded = await loadConfig(memoryStore())
     expect(loaded.error).toBeUndefined()
-    expect(loaded.config.layout.widgets).toEqual(["clock", "links"])
+    expect(loaded.config.layout.widgets).toEqual(["clock", "search", "links"])
   })
 
   test("gives the stored config", async () => {
@@ -27,7 +27,7 @@ describe("loadConfig", () => {
 
   test("falls back to the default with an error when the stored config is bad", async () => {
     const loaded = await loadConfig(memoryStore({ config: { version: 7 } }))
-    expect(loaded.config.layout.widgets).toEqual(["clock", "links"])
+    expect(loaded.config.layout.widgets).toEqual(["clock", "search", "links"])
     expect(loaded.error).toBe("The saved config is not valid (version: must be 1), so hull shows the default one.")
   })
 })
@@ -57,6 +57,6 @@ describe("watchConfig", () => {
     await saveConfig(store, mine)
     stop()
     await saveConfig(store, "version = 1\n[layout]\nwidgets = []\n")
-    expect(seen).toEqual([["clock", "links"], ["links"]])
+    expect(seen).toEqual([["clock", "search", "links"], ["links"]])
   })
 })

@@ -7,7 +7,7 @@ describe("parseConfig", () => {
     const result = parseConfig(defaultToml)
     expect(result.ok).toBe(true)
     if (result.ok) {
-      expect(result.config.layout.widgets).toEqual(["clock", "links"])
+      expect(result.config.layout.widgets).toEqual(["clock", "search", "links"])
       expect(result.config.groups.length).toBeGreaterThan(0)
     }
   })
@@ -25,6 +25,7 @@ links = [{ name = "Router", url = "http://192.168.1.1" }]
       config: {
         version: 1,
         layout: { widgets: ["links"] },
+        search: {},
         groups: [
           { name: "Home", links: [{ name: "Router", url: "http://192.168.1.1" }] },
         ],
@@ -36,7 +37,7 @@ links = [{ name = "Router", url = "http://192.168.1.1" }]
     const result = parseConfig("version = 1\n[layout]\nwidgets = []\n")
     expect(result).toEqual({
       ok: true,
-      config: { version: 1, layout: { widgets: [] }, groups: [] },
+      config: { version: 1, layout: { widgets: [] }, search: {}, groups: [] },
     })
   })
 
@@ -141,6 +142,68 @@ links = [{ name = "A", url = "https://example.com", icon = "a.png" }]
     expect(parseConfig("version = 1\n")).toEqual({
       ok: false,
       error: "layout: missing",
+    })
+  })
+})
+
+describe("parseConfig, the search", () => {
+  const base = 'version = 1\n[layout]\nwidgets = ["search"]\n'
+  const search = (toml: string) => {
+    const result = parseConfig(base + toml)
+    return result.ok ? { ok: true, search: result.config.search } : result
+  }
+
+  test("takes no search section as the browser's default engine", () => {
+    expect(search("")).toEqual({ ok: true, search: {} })
+  })
+
+  test("reads the name of an engine", () => {
+    expect(search('[search]\nengine = "DuckDuckGo"\n')).toEqual({
+      ok: true,
+      search: { engine: "DuckDuckGo" },
+    })
+  })
+
+  test("reads a URL with %s for the query", () => {
+    expect(search('[search]\nurl = "https://duckduckgo.com/?q=%s"\n')).toEqual({
+      ok: true,
+      search: { url: "https://duckduckgo.com/?q=%s" },
+    })
+  })
+
+  test("refuses an engine and a URL together", () => {
+    const toml = '[search]\nengine = "DuckDuckGo"\nurl = "https://duckduckgo.com/?q=%s"\n'
+    expect(search(toml)).toEqual({
+      ok: false,
+      error: "search: give engine or url, not both",
+    })
+  })
+
+  test("refuses a URL without %s", () => {
+    expect(search('[search]\nurl = "https://duckduckgo.com/"\n')).toEqual({
+      ok: false,
+      error: "search.url: must have %s where the query goes",
+    })
+  })
+
+  test("refuses a URL that is not http or https", () => {
+    expect(search('[search]\nurl = "javascript:alert(%s)"\n')).toEqual({
+      ok: false,
+      error: "search.url: must be an http or https URL",
+    })
+  })
+
+  test("refuses an empty engine", () => {
+    expect(search('[search]\nengine = ""\n')).toEqual({
+      ok: false,
+      error: "search.engine: must not be empty",
+    })
+  })
+
+  test("refuses an unknown key", () => {
+    expect(search('[search]\nengnie = "DuckDuckGo"\n')).toEqual({
+      ok: false,
+      error: "search.engnie: unknown key",
     })
   })
 })
