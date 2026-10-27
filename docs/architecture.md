@@ -15,8 +15,7 @@ widgets. The parts of the first version, in the order they are built:
 2. the links grid, from the config in `storage.local`, with a first
    options page: the config as TOML in a text box, checked and saved;
 3. the search box;
-4. the options page: import and export of TOML files, the list of search
-   engines;
+4. the options page: import and export of TOML files;
 5. edit mode on the page: add, change, move and remove links;
 6. notes.
 
@@ -67,8 +66,8 @@ reads the config again when it is shown from that cache.
   validation, migrations and storage. `store.ts` is the part of
   `storage.local` it uses, so tests run on a store in memory;
   `useConfig` gives a page the config and follows every save.
-- `src/platform/`: checks and calls for APIs that differ between
-  browsers: search engines, the theme.
+- `src/platform/`: not built yet; checks and calls for APIs that differ
+  between browsers, such as the theme.
 - `src/sources/`: not built yet; the only code that will talk to
   programs outside the extension.
 - `src/config/default.toml`: the config of a first run, bundled as text.
@@ -88,10 +87,6 @@ version = 1
 [layout]
 widgets = ["clock", "search", "links", "notes"]
 
-[search]
-engine = "DuckDuckGo"
-# url = "https://duckduckgo.com/?q=%s"
-
 [[groups]]
 name = "Home"
 links = [
@@ -107,9 +102,8 @@ links = [
 - A link is `http` or `https`, nothing else: a link must never run code
   (`javascript:`) or carry a document of its own (`data:`).
 - `groups` may be left out; it means no links.
-- `search` may be left out; it means the browser's default engine. It
-  takes `engine` or `url`, not both, so neither is ignored unseen. A
-  search `url` is `http` or `https` and has `%s` where the query goes.
+- The search has no settings: it uses the engine the browser's own
+  settings make the default.
 - `storage.local` holds two keys:
 
 | Key | Holds |
@@ -130,13 +124,8 @@ links = [
 - **Links:** the groups and their links as a grid. A link is a plain
   `<a>`, so a middle click opens a new tab as usual. A tile shows the
   first letter of the name; favicons are an open question.
-- **Search:** results open in the same tab. In Firefox, `search.search`
-  with the engine named in the config; the engine list for the options
-  page will come from `search.get`. In Chromium, `search.query` with the
-  default engine, whatever the config names. A `url` works in every
-  browser, with the query encoded in place of `%s`. When Firefox has no
-  engine of that name, a line under the box says so; hull does not fall
-  back to the default engine, so a typo shows.
+- **Search:** `search.query` with the browser's default engine, the same
+  call in Firefox and Chromium; results open in the same tab.
 - **Notes:** plain text, saved as the owner types.
 
 ## Browsers
@@ -148,7 +137,7 @@ missing, `src/platform/` gives the fallback:
 | --- | --- | --- |
 | New tab | `chrome_url_overrides` | the same |
 | Home page | `chrome_settings_overrides` | not set; the owner points the home button at the new tab |
-| Search | any installed engine | the default engine, or `url` |
+| Search | `search.query`, the default engine | the same |
 | Theme colors | `theme.getCurrent` | `prefers-color-scheme` |
 | Storage | `storage.local` | the same |
 

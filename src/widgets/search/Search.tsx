@@ -1,9 +1,8 @@
 import { useState } from "preact/hooks"
-import type { Config } from "../../config"
-import { search } from "../../platform/search"
-import { searchUrl } from "./url"
 
-export function Search({ config }: { config: Config }) {
+// Searches in this tab with the browser's default engine; Firefox and
+// Chromium both have search.query.
+export function Search() {
   const [error, setError] = useState<string>()
 
   async function submit(event: SubmitEvent) {
@@ -12,13 +11,8 @@ export function Search({ config }: { config: Config }) {
     const query = (new FormData(form).get("q") as string).trim()
     if (query === "") return
     setError(undefined)
-    const { engine, url } = config.search
-    if (url) {
-      location.assign(searchUrl(url, query))
-      return
-    }
     try {
-      await search(query, engine)
+      await browser.search.query({ text: query, disposition: "CURRENT_TAB" })
     } catch (e) {
       setError(`Not searched: ${e instanceof Error ? e.message : String(e)}`)
     }
