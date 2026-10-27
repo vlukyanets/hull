@@ -37,6 +37,32 @@
   opacity: 0.7;
 }
 
+.search {
+  width: min(100%, 40rem);
+}
+
+.search input {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 0.75rem 1.25rem;
+  border: 1px solid color-mix(in srgb, CanvasText 20%, Canvas);
+  border-radius: 1.5rem;
+  background: color-mix(in srgb, CanvasText 4%, Canvas);
+  color: inherit;
+  font: inherit;
+  font-size: 1.125rem;
+}
+
+.search input:focus-visible {
+  border-color: Highlight;
+  outline: none;
+}
+
+.search-error {
+  margin: 0.5rem 1.25rem 0;
+  font-size: 0.875rem;
+}
+
 .links {
   display: flex;
   flex-direction: column;

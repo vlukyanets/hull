@@ -47,7 +47,8 @@ draws the widgets in the order the config gives; the options page edits
 the config as TOML. Both read and write the config only through
 `src/config/`, which keeps it in `storage.local` on this machine. A page
 re-renders on `storage.onChanged`, so a change in one tab shows in every
-open tab.
+open tab. A page the browser kept for Back misses those events, so it
+reads the config again when it is shown from that cache.
 
 ## Code map
 
@@ -57,7 +58,8 @@ open tab.
 - `newtab.html`, `src/newtab/`: the page, the layout and edit mode. An
   "Edit" link in the corner opens the options page.
 - `options.html`, `src/options/`: the TOML editor; import and export to
-  come. Firefox opens it from about:addons, in a tab of its own.
+  come. Firefox opens it from about:addons, in a tab of its own. A link
+  at the top goes back to the new tab.
 - `src/base.css`: what every page shares.
 - `src/widgets/`: `clock/`, `links/`, `search/`, `notes/`. A widget gets
   its typed config as props and renders it.
@@ -105,6 +107,9 @@ links = [
 - A link is `http` or `https`, nothing else: a link must never run code
   (`javascript:`) or carry a document of its own (`data:`).
 - `groups` may be left out; it means no links.
+- `search` may be left out; it means the browser's default engine. It
+  takes `engine` or `url`, not both, so neither is ignored unseen. A
+  search `url` is `http` or `https` and has `%s` where the query goes.
 - `storage.local` holds two keys:
 
 | Key | Holds |
@@ -125,10 +130,13 @@ links = [
 - **Links:** the groups and their links as a grid. A link is a plain
   `<a>`, so a middle click opens a new tab as usual. A tile shows the
   first letter of the name; favicons are an open question.
-- **Search:** in Firefox, `search.search` with the engine named in the
-  config; the engine list for the options page comes from `search.get`.
-  In Chromium, `search.query` with the default engine. A `url` in the
-  config, with `%s` for the query, is used in every browser instead.
+- **Search:** results open in the same tab. In Firefox, `search.search`
+  with the engine named in the config; the engine list for the options
+  page will come from `search.get`. In Chromium, `search.query` with the
+  default engine, whatever the config names. A `url` works in every
+  browser, with the query encoded in place of `%s`. When Firefox has no
+  engine of that name, a line under the box says so; hull does not fall
+  back to the default engine, so a typo shows.
 - **Notes:** plain text, saved as the owner types.
 
 ## Browsers

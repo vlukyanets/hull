@@ -23,6 +23,7 @@ test("saves the text typed just before the form is sent", async () => {
   expect(data.config).toEqual({
     version: 1,
     layout: { widgets: ["clock"] },
+    search: {},
     groups: [],
   })
   expect(root.querySelector(".status")!.textContent).toBe("Saved.")

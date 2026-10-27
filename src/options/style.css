@@ -5,6 +5,13 @@
   padding: 2rem 1rem;
 }
 
+.options header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
 .options form {
   display: flex;
   flex-direction: column;

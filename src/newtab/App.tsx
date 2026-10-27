@@ -3,9 +3,11 @@ import type { Config, Widget } from "../config"
 import { useConfig } from "../config/useConfig"
 import { Clock } from "../widgets/clock/Clock"
 import { Links } from "../widgets/links/Links"
+import { Search } from "../widgets/search/Search"
 
 const widgets: Record<Widget, ComponentType<{ config: Config }>> = {
   clock: Clock,
+  search: Search,
   links: Links,
 }
 

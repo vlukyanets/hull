@@ -30,7 +30,10 @@ export function Options({ store = browserStore }: { store?: Store }) {
 
   return (
     <main class="options">
-      <h1>hull</h1>
+      <header>
+        <h1>hull</h1>
+        <a href="newtab.html">Back to the new tab</a>
+      </header>
       {loaded.error && (
         <p class="banner" role="alert">
           {loaded.error}
