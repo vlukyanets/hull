@@ -4,6 +4,7 @@ import { browserStore, storeConfig, type Config, type Store, type Widget } from 
 import { useConfig } from "../config/useConfig"
 import { Clock } from "../widgets/clock/Clock"
 import { Links } from "../widgets/links/Links"
+import { Notes } from "../widgets/notes/Notes"
 import type { WidgetProps } from "../widgets/props"
 import { Search } from "../widgets/search/Search"
 
@@ -11,6 +12,7 @@ const widgets: Record<Widget, ComponentType<WidgetProps>> = {
   clock: Clock,
   search: Search,
   links: Links,
+  notes: Notes,
 }
 
 // The mark on a page's address that edit mode led to it, both ways.
@@ -62,7 +64,9 @@ export function App({ store = browserStore }: { store?: Store }) {
       )}
       {loaded.config.layout.widgets.map((name) => {
         const Widget = widgets[name]
-        return <Widget key={name} config={loaded.config} editing={editing} save={save} />
+        return (
+          <Widget key={name} config={loaded.config} editing={editing} save={save} store={store} />
+        )
       })}
       <nav class="corner">
         {editing && <a href={`options.html${EDIT}`}>Settings</a>}

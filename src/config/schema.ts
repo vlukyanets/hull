@@ -1,6 +1,6 @@
 // The config as the pages use it, after parse.ts has checked it.
 
-export const WIDGETS = ["clock", "search", "links"] as const
+export const WIDGETS = ["clock", "search", "links", "notes"] as const
 
 export type Widget = (typeof WIDGETS)[number]
 

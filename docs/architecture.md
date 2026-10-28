@@ -68,13 +68,15 @@ reads the config again when it is shown from that cache.
 - `src/base.css`: what every page shares: the design tokens, colors in
   a light and a dark set, fonts and radii, and the basics.
 - `src/widgets/`: `clock/`, `links/`, `search/`, `notes/`. A widget gets
-  its typed config, whether the page is in edit mode, and a `save` that
-  stores a changed config (`props.ts`).
+  its typed config, whether the page is in edit mode, a `save` that
+  stores a changed config, and the store for data of its own, which it
+  reads and writes only through `src/config/` (`props.ts`).
 - `src/config/`: the schema, the defaults, TOML to config and back,
   validation, migrations and storage; `edit.ts` has the changes edit
   mode makes, as functions from config to config. `store.ts` is the part of
   `storage.local` it uses, so tests run on a store in memory;
-  `useConfig` gives a page the config and follows every save.
+  `useConfig` gives a page the config and follows every save; `notes.ts`
+  and `useNotes` do the same for the notes.
 - `src/platform/`: not built yet; checks and calls for APIs that differ
   between browsers, such as the theme.
 - `src/sources/`: not built yet; the only code that will talk to
@@ -124,7 +126,7 @@ links = [
 | Key | Holds |
 | --- | --- |
 | `config` | the whole config |
-| `notes` | the notes, not built yet |
+| `notes` | the notes, a list of `{ id, text }` |
 
 - `version` is the version of the schema. A stored config of an older
   version is migrated when it is read, by a function in `src/config/`.
@@ -154,7 +156,14 @@ links = [
   dialog open with the reason. There is no undo.
 - **Search:** `search.query` with the browser's default engine, the same
   call in Firefox and Chromium; results open in the same tab.
-- **Notes:** plain text, saved as the owner types.
+- **Notes:** sticky notes as a grid of cards in the tiles' style, plain
+  text typed right on them. "+ Note" adds one with the cursor in it; the
+  x on a card removes it, asking first when it has text. A note is saved
+  half a second after typing stops, and at once when it is left or the
+  tab closes; a line says "Saving..." and "Saved". A save in another tab
+  shows here, but never in a note with the cursor or with text not saved
+  yet. Off in edit mode. The notes are not in the TOML export: they are
+  the owner's text, not config.
 
 ## Browsers
 
