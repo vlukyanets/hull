@@ -1,15 +1,14 @@
 // @vitest-environment happy-dom
 import { render } from "preact"
-import { afterEach, expect, test, vi } from "vitest"
+import { afterEach, expect, test } from "vitest"
 import { memoryStore } from "../config/memoryStore"
+import { until } from "../until"
 import { App } from "./App"
-
-const settle = () => new Promise((r) => setTimeout(r, 10))
 
 // Waits for the page to draw: Preact runs effects after a frame, which a
 // busy machine can put off longer than any fixed wait.
 function find<T extends Element>(root: Element, selector: string) {
-  return vi.waitFor(() => {
+  return until(() => {
     const found = root.querySelector<T>(selector)
     if (!found) throw new Error(`${selector} is not drawn`)
     return found
@@ -58,12 +57,12 @@ test("adds a link from the dialog and stores it", async () => {
 
   const dialog = await addLink(root, "NAS", " https://nas.lan ")
 
-  await vi.waitFor(() => expect(dialog.open).toBe(false))
+  await until(() => expect(dialog.open).toBe(false))
   expect((data.config as typeof config).groups[0].links).toEqual([
     { name: "Router", url: "http://192.168.1.1" },
     { name: "NAS", url: "https://nas.lan" },
   ])
-  await vi.waitFor(() => expect(root.querySelector(".tiles")!.textContent).toContain("NAS"))
+  await until(() => expect(root.querySelector(".tiles")!.textContent).toContain("NAS"))
 })
 
 test("keeps the dialog open and stores nothing when a field is bad", async () => {
@@ -84,12 +83,13 @@ test("ends edit mode on Escape, but not while a dialog is open", async () => {
 
   const dialog = await openAdd(root)
   escape()
-  await settle()
+  dialog.close()
+  // The page has drawn the dialog closed, so it has drawn whatever the
+  // Escape before it did as well.
+  await until(() => expect(root.querySelector("dialog")).toBeNull())
   expect(root.querySelector(".links.editing")).not.toBeNull()
 
-  dialog.close()
-  await vi.waitFor(() => expect(root.querySelector("dialog")).toBeNull())
   escape()
-  await vi.waitFor(() => expect(root.querySelector(".links.editing")).toBeNull())
+  await until(() => expect(root.querySelector(".links.editing")).toBeNull())
   expect(root.querySelector("button.edit")!.textContent).toBe("Edit")
 })
