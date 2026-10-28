@@ -21,6 +21,10 @@ export function Search() {
   return (
     <section class="search">
       <form role="search" onSubmit={submit}>
+        <svg class="search-icon" aria-hidden="true" width="18" height="18" viewBox="0 0 24 24">
+          <circle cx="11" cy="11" r="7" />
+          <path d="M20 20l-4-4" />
+        </svg>
         <input
           type="search"
           name="q"
