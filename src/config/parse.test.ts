@@ -40,34 +40,34 @@ links = [{ name = "Router", url = "http://192.168.1.1" }]
     })
   })
 
-  test("refuses a link that is not http or https", () => {
+  test("takes any text as the URL of a link", () => {
     const toml = `version = 1
 [layout]
 widgets = []
 [[groups]]
 name = "Home"
 links = [
-  { name = "Fine", url = "https://example.com" },
+  { name = "Web", url = "https://example.com" },
+  { name = "Shell", url = "ssh://nas.lan" },
+  { name = "Router", url = "192.168.1.1" },
   { name = "Script", url = "javascript:alert(1)" },
+  { name = "Empty", url = "" },
 ]
 `
-    expect(parseConfig(toml)).toEqual({
-      ok: false,
-      error: "groups[0].links[1].url: must be an http or https URL",
-    })
+    expect(parseConfig(toml).ok).toBe(true)
   })
 
-  test("refuses a link that is not a URL", () => {
+  test("refuses a URL that is not text", () => {
     const toml = `version = 1
 [layout]
 widgets = []
 [[groups]]
 name = "Home"
-links = [{ name = "Router", url = "192.168.1.1" }]
+links = [{ name = "Router", url = 192 }]
 `
     expect(parseConfig(toml)).toEqual({
       ok: false,
-      error: "groups[0].links[0].url: must be an http or https URL",
+      error: "groups[0].links[0].url: must be text",
     })
   })
 
