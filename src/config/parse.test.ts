@@ -7,7 +7,7 @@ describe("parseConfig", () => {
     const result = parseConfig(defaultToml)
     expect(result.ok).toBe(true)
     if (result.ok) {
-      expect(result.config.layout.widgets).toEqual(["clock", "search", "links"])
+      expect(result.config.layout.widgets).toEqual(["clock", "search", "notes", "links"])
       expect(result.config.groups.length).toBeGreaterThan(0)
     }
   })
