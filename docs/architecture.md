@@ -16,7 +16,7 @@ widgets. The parts of the first version, in the order they are built:
    options page: the config as TOML in a text box, checked and saved;
 3. the search box;
 4. the options page: import and export of TOML files;
-5. edit mode on the page: add, change, move and remove links;
+5. edit mode on the page: add, change, move and remove links and groups;
 6. notes.
 
 Later, in no fixed order:
@@ -42,8 +42,9 @@ flowchart LR
 ```
 
 hull is two extension pages and no background script. The new-tab page
-draws the widgets in the order the config gives; the options page edits
-the config as TOML. Both read and write the config only through
+draws the widgets in the order the config gives, and in edit mode changes
+the links and groups; the options page edits the whole config as TOML.
+Both read and write the config only through
 `src/config/`, which keeps it in `storage.local` on this machine. A page
 re-renders on `storage.onChanged`, so a change in one tab shows in every
 open tab. A page the browser kept for Back misses those events, so it
@@ -54,16 +55,19 @@ reads the config again when it is shown from that cache.
 - `public/manifest.json`: Manifest V3, written by hand. The new-tab
   override, the home page override for Firefox, the Gecko id, the
   permissions. Vite copies `public/` into `dist/` as it is.
-- `newtab.html`, `src/newtab/`: the page, the layout and edit mode. An
-  "Edit" link in the corner opens the options page.
+- `newtab.html`, `src/newtab/`: the page, the layout and edit mode.
+  "Edit" in the corner turns edit mode on and becomes "Done", with a
+  "Settings" link to the options page next to it.
 - `options.html`, `src/options/`: the TOML editor, import and export.
   Firefox opens it from about:addons, in a tab of its own. A link at the
   top goes back to the new tab.
 - `src/base.css`: what every page shares.
 - `src/widgets/`: `clock/`, `links/`, `search/`, `notes/`. A widget gets
-  its typed config as props and renders it.
+  its typed config, whether the page is in edit mode, and a `save` that
+  stores a changed config (`props.ts`).
 - `src/config/`: the schema, the defaults, TOML to config and back,
-  validation, migrations and storage. `store.ts` is the part of
+  validation, migrations and storage; `edit.ts` has the changes edit
+  mode makes, as functions from config to config. `store.ts` is the part of
   `storage.local` it uses, so tests run on a store in memory;
   `useConfig` gives a page the config and follows every save.
 - `src/platform/`: not built yet; checks and calls for APIs that differ
@@ -129,7 +133,14 @@ links = [
   `Intl.DateTimeFormat`; it redraws when the minute changes.
 - **Links:** the groups and their links as a grid. A link is a plain
   `<a>`, so a middle click opens a new tab as usual. A tile shows the
-  first letter of the name; favicons are an open question.
+  first letter of the name; favicons are an open question. In edit mode
+  a tile is a button: a click opens a dialog to change or remove the
+  link, a "+" tile at the end of a group adds one, and a click on a
+  group's name renames or removes the group, asking first when it has
+  links. Tiles and groups move by drag and drop: a dropped one takes the
+  place of the one it is dropped on, or goes last on a "+". Each change
+  is saved at once, checked as TOML would be; an empty name keeps the
+  dialog open with the reason. There is no undo.
 - **Search:** `search.query` with the browser's default engine, the same
   call in Firefox and Chromium; results open in the same tab.
 - **Notes:** plain text, saved as the owner types.
@@ -152,7 +163,8 @@ Neither browser shows an extension's new tab in a private window.
 ## Invariants
 
 - Only `src/config/` reads or writes `browser.storage`. Widgets get typed
-  config and never touch storage.
+  config and never touch storage; a widget changes the config only
+  through the `save` the page gives it.
 - Only `src/platform/` calls an API that differs between browsers, and it
   checks before the call. A missing feature is not an error: the widget
   falls back or hides, and the page runs on.
@@ -207,6 +219,10 @@ Neither browser shows an extension's new tab in a private window.
   the last render, which can be behind when the form is sent right after
   an input. `src/options/Options.test.tsx` sends the form in the same
   tick as the input, in happy-dom, and fails on the old way.
+- **The browser's own drag and drop and `<dialog>` for edit mode,** no
+  library. A drag carries data of a type of hull's own: Firefox starts a
+  drag only with data, and a browser opens a dropped link or text it
+  knows. Drag and drop needs a mouse; the dialogs work from the keyboard.
 - **happy-dom for the few component tests.** Only in development, and
   only where a page's behavior needs a test; the logic stays in
   `src/config/` and `src/platform/`, tested without a DOM.

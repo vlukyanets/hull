@@ -6,6 +6,8 @@ import type { Store } from "./store"
 
 export type { Config, Group, Link, Widget } from "./schema"
 export type { ParseResult } from "./parse"
+export { nameProblem } from "./parse"
+export * from "./edit"
 export { browserStore, type Store } from "./store"
 
 // The pages read and write the config only through this module. It is kept
@@ -41,6 +43,13 @@ export async function loadConfig(store: Store): Promise<Loaded> {
 // Stores the config only when the TOML is valid.
 export async function saveConfig(store: Store, toml: string): Promise<ParseResult> {
   const result = parseConfig(toml)
+  if (result.ok) await store.set(KEY, result.config)
+  return result
+}
+
+// The same for a config changed in edit mode, checked as TOML would be.
+export async function storeConfig(store: Store, config: Config): Promise<ParseResult> {
+  const result = validateConfig(config)
   if (result.ok) await store.set(KEY, result.config)
   return result
 }

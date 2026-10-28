@@ -66,10 +66,17 @@ function list(value: unknown, path: string): [unknown, string][] {
   return value.map((item, i) => [item, `${path}[${i}]`])
 }
 
+// The reason a name is refused, or undefined; the dialogs of edit mode
+// check the field with it.
+export function nameProblem(value: unknown): string | undefined {
+  if (typeof value !== "string") return "must be text"
+  if (value.trim() === "") return "must not be empty"
+}
+
 function name(value: unknown, path: string): string {
-  if (typeof value !== "string") throw new Invalid(`${path}: must be text`)
-  if (value.trim() === "") throw new Invalid(`${path}: must not be empty`)
-  return value
+  const problem = nameProblem(value)
+  if (problem) throw new Invalid(`${path}: ${problem}`)
+  return value as string
 }
 
 function widgets(value: unknown): Widget[] {

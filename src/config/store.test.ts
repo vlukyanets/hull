@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest"
-import { configToml, loadConfig, saveConfig, watchConfig } from "."
+import { configToml, loadConfig, saveConfig, storeConfig, watchConfig, type Config } from "."
 import { memoryStore } from "./memoryStore"
 import { parseConfig } from "./parse"
 
@@ -37,6 +37,26 @@ describe("saveConfig", () => {
     const data: Record<string, unknown> = {}
     const result = await saveConfig(memoryStore(data), "version = \n")
     expect(result).toEqual({ ok: false, error: "line 1, column 11: invalid value" })
+    expect(data).toEqual({})
+  })
+})
+
+describe("storeConfig", () => {
+  test("stores a valid config", async () => {
+    const data: Record<string, unknown> = {}
+    const config = (parseConfig(mine) as { config: Config }).config
+    expect(await storeConfig(memoryStore(data), config)).toEqual({ ok: true, config })
+    expect(data.config).toEqual(config)
+  })
+
+  test("stores nothing when the config is bad", async () => {
+    const data: Record<string, unknown> = {}
+    const config = (parseConfig(mine) as { config: Config }).config
+    config.groups[0].links[0].name = " "
+    expect(await storeConfig(memoryStore(data), config)).toEqual({
+      ok: false,
+      error: "groups[0].links[0].name: must not be empty",
+    })
     expect(data).toEqual({})
   })
 })
