@@ -17,7 +17,9 @@ widgets. The parts of the first version, in the order they are built:
 3. the search box;
 4. the options page: import and export of TOML files;
 5. edit mode on the page: add, change, move and remove links and groups;
-6. notes.
+6. the design, made in Claude: the tokens and the new tab, then edit
+   mode, then the options page;
+7. notes.
 
 Later, in no fixed order:
 
@@ -61,7 +63,8 @@ reads the config again when it is shown from that cache.
 - `options.html`, `src/options/`: the TOML editor, import and export.
   Firefox opens it from about:addons, in a tab of its own. A link at the
   top goes back to the new tab.
-- `src/base.css`: what every page shares.
+- `src/base.css`: what every page shares: the design tokens, colors in
+  a light and a dark set, fonts and radii, and the basics.
 - `src/widgets/`: `clock/`, `links/`, `search/`, `notes/`. A widget gets
   its typed config, whether the page is in edit mode, and a `save` that
   stores a changed config (`props.ts`).
@@ -130,7 +133,9 @@ links = [
 ## The widgets
 
 - **Clock:** the time and date in the browser's locale, with
-  `Intl.DateTimeFormat`; it redraws when the minute changes.
+  `Intl.DateTimeFormat`; it redraws when the minute changes. The period
+  of the day (AM, PM) is drawn smaller, on the side the locale puts it;
+  a 24-hour locale has none.
 - **Links:** the groups and their links as a grid. A link is a plain
   `<a>`, so a middle click opens a new tab as usual. A tile shows the
   first letter of the name; favicons are an open question. In edit mode
@@ -210,6 +215,11 @@ Neither browser shows an extension's new tab in a private window.
   limit that matters for a config or notes; `storage.sync` would cap an
   item at 8 KB and all of it at 100 KB. The cost: each machine has its
   own config until there is sync.
+- **The design is tokens in CSS custom properties,** light and dark by
+  `prefers-color-scheme`, from a design made in Claude. The pages use
+  the tokens, never a color of their own, so Firefox theme colors can
+  later replace one set. System fonts only: an extension page loads no
+  web fonts.
 - **Letter tiles, not favicons, for now.** Favicons would mean a request
   to every linked site.
 - **Types for `browser` from `@types/firefox-webext-browser`.** They are
