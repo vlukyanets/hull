@@ -84,3 +84,20 @@ test("imports nothing and says why when the file is bad", async () => {
   expect(data).toEqual({})
   expect(root.querySelector("textarea")!.value).toBe(before)
 })
+
+const back = (root: Element) => {
+  const link = root.querySelector<HTMLAnchorElement>("a.back")!
+  return [link.textContent, link.getAttribute("href")]
+}
+
+test("leads back to editing when opened from edit mode's Settings", async () => {
+  history.replaceState(null, "", "#edit")
+  const { root } = await drawn({})
+  expect(back(root)).toEqual(["Back to editing", "newtab.html#edit"])
+})
+
+test("leads back to the new tab when opened another way", async () => {
+  history.replaceState(null, "", location.pathname)
+  const { root } = await drawn({})
+  expect(back(root)).toEqual(["Back to the new tab", "newtab.html"])
+})

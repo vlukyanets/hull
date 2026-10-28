@@ -94,6 +94,20 @@ test("ends edit mode on Escape, but not while a dialog is open", async () => {
   expect(root.querySelector("button.edit")!.textContent).toBe("Edit")
 })
 
+test("starts in edit mode when opened from the options page's Back to editing", async () => {
+  history.replaceState(null, "", "#edit")
+  const root = document.createElement("div")
+  document.body.append(root)
+  render(<App store={memoryStore({ config: structuredClone(config) })} />, root)
+
+  await find(root, ".links.editing")
+  // A reload after that starts as usual.
+  expect(location.hash).toBe("")
+  expect(root.querySelector<HTMLAnchorElement>(".corner a")!.getAttribute("href")).toBe(
+    "options.html#edit",
+  )
+})
+
 // The button of the open dialog with this text.
 const button = (dialog: Element, text: string) =>
   until(() => {

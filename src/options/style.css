@@ -1,37 +1,109 @@
 .options {
   box-sizing: border-box;
-  width: min(100%, 48rem);
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: min(100%, 928px);
   margin: 0 auto;
-  padding: 2rem 1rem;
+  padding: 48px 24px;
 }
 
 .options header {
   display: flex;
+  flex-wrap: wrap;
   align-items: baseline;
   justify-content: space-between;
-  gap: 1rem;
+  gap: 8px 24px;
+}
+
+.options h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 600;
+  line-height: 36px;
+  letter-spacing: -0.01em;
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  line-height: 20px;
+  text-underline-offset: 3px;
+}
+
+.back svg,
+.status svg {
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.options .banner {
+  margin: 0;
 }
 
 .options form {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 8px;
 }
 
+.options label {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 16px;
+}
+
+.label-note {
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+/* The TOML is code: monospace, no wrapping, two-space tabs. */
 .options textarea {
-  min-height: 28rem;
-  padding: 0.75rem;
-  font: 0.875rem/1.5 ui-monospace, monospace;
+  box-sizing: border-box;
+  width: 100%;
+  height: 540px;
+  padding: 16px 20px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 14px;
+  line-height: 22px;
+  tab-size: 2;
+  white-space: pre;
   resize: vertical;
 }
 
 .actions {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 1rem;
+  gap: 8px;
+  margin-top: 16px;
 }
 
-.actions button {
-  padding: 0.5rem 1.5rem;
-  font: inherit;
+.actions .button-primary {
+  padding: 0 18px;
+}
+
+.status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 0 12px;
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.status.failed {
+  color: var(--danger);
 }

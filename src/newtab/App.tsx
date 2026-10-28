@@ -13,10 +13,18 @@ const widgets: Record<Widget, ComponentType<WidgetProps>> = {
   links: Links,
 }
 
+// The mark on a page's address that edit mode led to it, both ways.
+const EDIT = "#edit"
+
 // store: storage.local, or a store in memory in tests.
 export function App({ store = browserStore }: { store?: Store }) {
   const loaded = useConfig(store)
-  const [editing, setEditing] = useState(false)
+  // newtab.html#edit, from the options page's "Back to editing", starts in
+  // edit mode; the mark is dropped at once, so a reload starts as usual.
+  const [editing, setEditing] = useState(() => location.hash === EDIT)
+  useEffect(() => {
+    if (location.hash === EDIT) history.replaceState(null, "", location.pathname)
+  }, [])
 
   // Escape ends edit mode, unless it closes a dialog.
   useEffect(() => {
@@ -57,7 +65,7 @@ export function App({ store = browserStore }: { store?: Store }) {
         return <Widget key={name} config={loaded.config} editing={editing} save={save} />
       })}
       <nav class="corner">
-        {editing && <a href="options.html">Settings</a>}
+        {editing && <a href={`options.html${EDIT}`}>Settings</a>}
         <button
           type="button"
           class={editing ? "edit done" : "edit"}
