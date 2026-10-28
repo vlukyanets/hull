@@ -2,11 +2,25 @@ import { useEffect, useRef, useState } from "preact/hooks"
 import { browserStore, configToml, saveConfig, type Store } from "../config"
 import { useConfig } from "../config/useConfig"
 
+// The line under the editor; its kind picks the icon and the color.
+type Status = { kind: "saved" | "imported" | "error"; text: string }
+
+const ICONS = {
+  saved: <path d="M5 12.5l4.5 4.5L19 7.5" />,
+  imported: <path d="M12 4v11M7 10l5 5 5-5M5 20h14" />,
+  error: (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 7.5v5.5M12 16.5v.01" />
+    </>
+  ),
+}
+
 // store: storage.local, or a store in memory in tests.
 export function Options({ store = browserStore }: { store?: Store }) {
   const loaded = useConfig(store)
   const [text, setText] = useState<string>()
-  const [status, setStatus] = useState<string>()
+  const [status, setStatus] = useState<Status>()
   const importField = useRef<HTMLInputElement>(null)
 
   // Fill the editor once; a save from another tab does not replace what is
@@ -24,7 +38,11 @@ export function Options({ store = browserStore }: { store?: Store }) {
     const form = event.currentTarget as HTMLFormElement
     const toml = new FormData(form).get("config") as string
     const result = await saveConfig(store, toml)
-    setStatus(result.ok ? "Saved." : `Not saved: ${result.error}`)
+    setStatus(
+      result.ok
+        ? { kind: "saved", text: "Saved." }
+        : { kind: "error", text: `Not saved: ${result.error}` },
+    )
   }
 
   // A valid file is saved at once and replaces the text in the editor,
@@ -37,9 +55,9 @@ export function Options({ store = browserStore }: { store?: Store }) {
     const result = await saveConfig(store, await file.text())
     if (result.ok) {
       setText(configToml(result.config))
-      setStatus(`Imported ${file.name}.`)
+      setStatus({ kind: "imported", text: `Imported ${file.name}.` })
     } else {
-      setStatus(`Not imported: ${result.error}`)
+      setStatus({ kind: "error", text: `Not imported: ${result.error}` })
     }
   }
 
@@ -53,11 +71,20 @@ export function Options({ store = browserStore }: { store?: Store }) {
     URL.revokeObjectURL(link.href)
   }
 
+  const failed = status?.kind === "error"
+  // Opened from Settings in edit mode, the page leads back to editing;
+  // from about:addons, to the new tab.
+  const fromEditing = location.hash === "#edit"
   return (
     <main class="options">
       <header>
         <h1>hull</h1>
-        <a href="newtab.html">Back to the new tab</a>
+        <a class="back" href={fromEditing ? "newtab.html#edit" : "newtab.html"}>
+          <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24">
+            <path d="M15 6l-6 6 6 6" />
+          </svg>
+          {fromEditing ? "Back to editing" : "Back to the new tab"}
+        </a>
       </header>
       {loaded.error && (
         <p class="banner" role="alert">
@@ -66,25 +93,27 @@ export function Options({ store = browserStore }: { store?: Store }) {
       )}
       <form onSubmit={save}>
         <label for="config">
-          The config, in TOML. It is checked before it is saved; nothing is
-          saved while it has an error.
+          Configuration <span class="label-note">(TOML)</span>
         </label>
         <textarea
           id="config"
           name="config"
           spellcheck={false}
           value={text}
+          aria-describedby={failed ? "config-status" : undefined}
           onInput={(event) => {
             setText(event.currentTarget.value)
             setStatus(undefined)
           }}
         />
         <div class="actions">
-          <button type="submit">Save</button>
-          <button type="button" onClick={() => importField.current?.click()}>
-            Import
+          <button type="submit" class="button button-primary">
+            Save
           </button>
-          <button type="button" onClick={exportFile}>
+          <button type="button" class="button" onClick={() => importField.current?.click()}>
+            Import...
+          </button>
+          <button type="button" class="button" onClick={exportFile}>
             Export
           </button>
           <input
@@ -94,9 +123,16 @@ export function Options({ store = browserStore }: { store?: Store }) {
             hidden
             onChange={importFile}
           />
-          <span class="status" role="status">
-            {status}
-          </span>
+          <p id="config-status" class={failed ? "status failed" : "status"} role="status">
+            {status && (
+              <>
+                <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24">
+                  {ICONS[status.kind]}
+                </svg>
+                {status.text}
+              </>
+            )}
+          </p>
         </div>
       </form>
     </main>

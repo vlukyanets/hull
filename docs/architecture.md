@@ -62,7 +62,9 @@ reads the config again when it is shown from that cache.
   "Settings" link to the options page next to it.
 - `options.html`, `src/options/`: the TOML editor, import and export.
   Firefox opens it from about:addons, in a tab of its own. A link at the
-  top goes back to the new tab.
+  top goes back to the new tab; opened from Settings, it reads "Back to
+  editing" and the new tab opens in edit mode. Edit mode is not stored:
+  `#edit` on each page's address carries it there and back.
 - `src/base.css`: what every page shares: the design tokens, colors in
   a light and a dark set, fonts and radii, and the basics.
 - `src/widgets/`: `clock/`, `links/`, `search/`, `notes/`. A widget gets
