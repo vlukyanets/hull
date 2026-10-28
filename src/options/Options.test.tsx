@@ -1,7 +1,8 @@
 // @vitest-environment happy-dom
 import { render } from "preact"
-import { expect, test, vi } from "vitest"
+import { expect, test } from "vitest"
 import { memoryStore } from "../config/memoryStore"
+import { until } from "../until"
 import { Options } from "./Options"
 
 // Draws the page and waits for the editor: Preact fills it in an effect,
@@ -10,7 +11,7 @@ import { Options } from "./Options"
 async function drawn(data: Record<string, unknown>) {
   const root = document.createElement("div")
   render(<Options store={memoryStore(data)} />, root)
-  const textarea = await vi.waitFor(() => {
+  const textarea = await until(() => {
     const found = root.querySelector("textarea")
     if (!found) throw new Error("the editor is not drawn")
     return found
@@ -30,7 +31,7 @@ test("saves the text typed just before the form is sent", async () => {
   textarea.dispatchEvent(new Event("input", { bubbles: true }))
   root.querySelector("form")!.requestSubmit()
 
-  await vi.waitFor(() => expect(status(root)).toBe("Saved."))
+  await until(() => expect(status(root)).toBe("Saved."))
   expect(data.config).toEqual({
     version: 1,
     layout: { widgets: ["clock"] },
@@ -46,7 +47,7 @@ test("saves nothing and says why when the text is bad", async () => {
   textarea.dispatchEvent(new Event("input", { bubbles: true }))
   root.querySelector("form")!.requestSubmit()
 
-  await vi.waitFor(() => expect(status(root)).toBe("Not saved: version: must be 1"))
+  await until(() => expect(status(root)).toBe("Not saved: version: must be 1"))
   expect(data).toEqual({})
 })
 
@@ -67,7 +68,7 @@ test("saves an imported file at once and shows it in the editor", async () => {
   textarea.dispatchEvent(new Event("input", { bubbles: true }))
   pick(root, '# mine\nversion = 1\n[layout]\nwidgets = ["links"]\n')
 
-  await vi.waitFor(() => expect(status(root)).toBe("Imported hull.toml."))
+  await until(() => expect(status(root)).toBe("Imported hull.toml."))
   expect(data.config).toEqual({ version: 1, layout: { widgets: ["links"] }, groups: [] })
   expect(root.querySelector("textarea")!.value).toContain('widgets = [ "links" ]')
 })
@@ -79,7 +80,7 @@ test("imports nothing and says why when the file is bad", async () => {
 
   pick(root, "version = 2\n[layout]\nwidgets = []\n")
 
-  await vi.waitFor(() => expect(status(root)).toBe("Not imported: version: must be 1"))
+  await until(() => expect(status(root)).toBe("Not imported: version: must be 1"))
   expect(data).toEqual({})
   expect(root.querySelector("textarea")!.value).toBe(before)
 })

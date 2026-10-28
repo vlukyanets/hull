@@ -1,6 +1,7 @@
 // @vitest-environment happy-dom
 import { render } from "preact"
-import { expect, test, vi } from "vitest"
+import { expect, test } from "vitest"
+import { until } from "../until"
 import { memoryStore } from "./memoryStore"
 import { parseConfig } from "./parse"
 import { useConfig } from "./useConfig"
@@ -24,7 +25,7 @@ test("reads the config again when the page comes back from the cache", async () 
   render(<Widgets store={memoryStore(data)} />, root)
   // useConfig reads in an effect, after a frame; wait for it rather than a
   // fixed time, which a busy machine can overrun.
-  await vi.waitFor(() => expect(root.textContent).toBe("clock,search,links"))
+  await until(() => expect(root.textContent).toBe("clock,search,links"))
 
   // Saved in another page while this one was in the cache, so this one
   // never heard of it.
@@ -32,5 +33,5 @@ test("reads the config again when the page comes back from the cache", async () 
   if (result.ok) data.config = result.config
   pageshowFromCache()
 
-  await vi.waitFor(() => expect(root.textContent).toBe("links"))
+  await until(() => expect(root.textContent).toBe("links"))
 })
