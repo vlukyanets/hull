@@ -93,3 +93,34 @@ test("ends edit mode on Escape, but not while a dialog is open", async () => {
   await until(() => expect(root.querySelector(".links.editing")).toBeNull())
   expect(root.querySelector("button.edit")!.textContent).toBe("Edit")
 })
+
+// The button of the open dialog with this text.
+const button = (dialog: Element, text: string) =>
+  until(() => {
+    const found = [...dialog.querySelectorAll("button")].find((b) => b.textContent === text)
+    if (!found) throw new Error(`no ${text} button`)
+    return found
+  })
+
+test("asks before removing a group with links, and Escape goes back", async () => {
+  const data: Record<string, unknown> = { config: structuredClone(config) }
+  const root = await editing(data)
+  ;(await find<HTMLButtonElement>(root, ".group-name button")).click()
+  const dialog = await find<HTMLDialogElement>(root, "dialog[open]")
+
+  ;(await button(dialog, "Remove")).click()
+  const question = await find(dialog, "[role=alertdialog] h2")
+  await until(() => expect(question.textContent).toBe("Remove Home and its 1 link?"))
+  expect(data.config).toEqual(config)
+
+  // Escape leaves the question for the group, not the dialog.
+  const cancel = new Event("cancel", { cancelable: true })
+  dialog.dispatchEvent(cancel)
+  expect(cancel.defaultPrevented).toBe(true)
+  await until(() => expect(dialog.querySelector("[role=alertdialog]")).toBeNull())
+  expect(dialog.querySelector("form")!.hidden).toBe(false)
+
+  ;(await button(dialog, "Remove")).click()
+  ;(await button(dialog, "Yes, remove")).click()
+  await until(() => expect((data.config as typeof config).groups).toEqual([]))
+})

@@ -1,5 +1,6 @@
 import { useState } from "preact/hooks"
 import { nameProblem, type Link } from "../../config"
+import { Field, FieldError } from "./Field"
 import { useModal } from "./useModal"
 
 interface Props {
@@ -40,30 +41,21 @@ export function LinkDialog({ link, onSave, onRemove, onClose }: Props) {
   return (
     <dialog ref={dialog} class="dialog" onClose={onClose}>
       <form onSubmit={save} noValidate>
-        <h2>{link ? "Change the link" : "Add a link"}</h2>
-        <label>
-          Name
-          <input name="name" defaultValue={link?.name} autocomplete="off" />
-        </label>
-        {problems.name && <p class="field-error">Name: {problems.name}</p>}
-        <label>
-          URL
-          <input name="url" type="url" defaultValue={link?.url} autocomplete="off" />
-        </label>
-        {problems.save && (
-          <p class="field-error" role="alert">
-            Not saved: {problems.save}
-          </p>
-        )}
+        <h2>{link ? "Edit link" : "Add link"}</h2>
+        <Field label="Name" name="name" value={link?.name} problem={problems.name} />
+        <Field label="URL" name="url" inputMode="url" value={link?.url} />
+        {problems.save && <FieldError>Not saved: {problems.save}</FieldError>}
         <div class="dialog-actions">
-          <button type="submit">Save</button>
           {onRemove && (
-            <button type="button" onClick={remove}>
+            <button type="button" class="button button-danger" onClick={remove}>
               Remove
             </button>
           )}
-          <button type="button" onClick={() => dialog.current?.close()}>
+          <button type="button" class="button" onClick={() => dialog.current?.close()}>
             Cancel
+          </button>
+          <button type="submit" class="button button-primary">
+            Save
           </button>
         </div>
       </form>
