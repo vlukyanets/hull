@@ -29,6 +29,10 @@
   --r-tile: 14px;
   --r-lg: 16px;
   --r-pill: 999px;
+
+  --shadow-dialog: 0 2px 4px rgb(27 29 32 / 0.06), 0 16px 40px rgb(27 29 32 / 0.14);
+  --shadow-drag: 0 2px 4px rgb(27 29 32 / 0.08), 0 14px 32px rgb(27 29 32 / 0.18);
+  --backdrop: rgb(0 0 0 / 0.4);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -48,6 +52,10 @@
     --danger: #ee8a80;
     --on-danger: #2a0f0c;
     --danger-soft: #3a2321;
+
+    --shadow-dialog: 0 24px 64px rgb(0 0 0 / 0.5);
+    --shadow-drag: 0 14px 32px rgb(0 0 0 / 0.5);
+    --backdrop: rgb(0 0 0 / 0.55);
   }
 }
 
@@ -69,6 +77,65 @@ a:hover {
 :focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
+}
+
+/* Buttons: secondary by default; primary for the main action, danger to
+   remove, quiet for small links in a corner. */
+.button {
+  box-sizing: border-box;
+  height: 36px;
+  padding: 0 16px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.button:hover {
+  background: var(--surface-sunk);
+}
+
+.button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.button-primary {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 600;
+}
+
+.button-primary:hover {
+  border-color: var(--accent-hover);
+  background: var(--accent-hover);
+}
+
+.button-danger {
+  padding: 0 12px;
+  border-color: transparent;
+  background: transparent;
+  color: var(--danger);
+}
+
+.button-danger:hover {
+  background: var(--danger-soft);
+}
+
+/* The danger button that does it: "Yes, remove". */
+.button-danger-strong {
+  border-color: var(--danger);
+  background: var(--danger);
+  color: var(--on-danger);
+  font-weight: 600;
+}
+
+.button-danger-strong:hover {
+  background: var(--danger);
 }
 
 .banner {

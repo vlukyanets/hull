@@ -36,7 +36,17 @@ export function App({ store = browserStore }: { store?: Store }) {
   }
 
   return (
-    <main class="page">
+    <main class={editing ? "page editing" : "page"}>
+      {editing && (
+        <p class="edit-banner" role="status">
+          <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24">
+            <path d="M4 20h4L19 9l-4-4L4 16z" />
+          </svg>
+          <span>
+            <strong>Editing.</strong> Drag tiles and groups to reorder. Click one to change it.
+          </span>
+        </p>
+      )}
       {loaded.error && (
         <p class="banner" role="alert">
           {loaded.error} <a href="options.html">Fix it on the options page.</a>
@@ -48,7 +58,11 @@ export function App({ store = browserStore }: { store?: Store }) {
       })}
       <nav class="corner">
         {editing && <a href="options.html">Settings</a>}
-        <button type="button" class="edit" onClick={() => setEditing(!editing)}>
+        <button
+          type="button"
+          class={editing ? "edit done" : "edit"}
+          onClick={() => setEditing(!editing)}
+        >
           {editing ? "Done" : "Edit"}
         </button>
       </nav>

@@ -139,12 +139,16 @@ links = [
 - **Links:** the groups and their links as a grid. A link is a plain
   `<a>`, so a middle click opens a new tab as usual. A tile shows the
   first letter of the name; favicons are an open question. In edit mode
-  a tile is a button: a click opens a dialog to change or remove the
-  link, a "+" tile at the end of a group adds one, and a click on a
-  group's name renames or removes the group, asking first when it has
-  links. Tiles and groups move by drag and drop: a dropped one takes the
-  place of the one it is dropped on, or goes last on a "+". Each change
-  is saved at once, checked as TOML would be; an empty name keeps the
+  the page takes another ground and a banner says so; the clock and
+  search fade, and the search is off. Groups become cards and a tile is
+  a button: a click opens a dialog to edit or remove the link, a "+"
+  tile at the end of a group adds one, and a click on a group's name
+  edits or removes the group. A group with links is removed only after a
+  question in its place, which Escape leaves for the group. Tiles and
+  groups move by drag and drop: the dragged one stays hollow where it
+  was, and a dropped one takes the place of the one it is dropped on, or
+  goes last on a "+"; for a group, a bar shows that side. Each change is
+  saved at once, checked as TOML would be; an empty name keeps the
   dialog open with the reason. There is no undo.
 - **Search:** `search.query` with the browser's default engine, the same
   call in Firefox and Chromium; results open in the same tab.

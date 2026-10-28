@@ -1,5 +1,6 @@
-import { useState } from "preact/hooks"
+import { useEffect, useRef, useState } from "preact/hooks"
 import { nameProblem, type Group } from "../../config"
+import { Field, FieldError } from "./Field"
 import { useModal } from "./useModal"
 
 interface Props {
@@ -11,57 +12,86 @@ interface Props {
   onClose(): void
 }
 
+interface Problems {
+  name?: string
+  save?: string
+}
+
 export function GroupDialog({ group, onSave, onRemove, onClose }: Props) {
   const dialog = useModal()
-  const [problem, setProblem] = useState<string>()
-  // A group with links is removed only on a second click, after the
-  // question.
+  const [problems, setProblems] = useState<Problems>({})
+  // A group with links is removed only after a question, which takes the
+  // place of the form; the form stays, hidden, with what was typed.
   const [asking, setAsking] = useState(false)
+  const cancel = useRef<HTMLButtonElement>(null)
+
+  useEffect(() => {
+    if (asking) cancel.current?.focus()
+  }, [asking])
 
   async function save(event: SubmitEvent) {
     event.preventDefault()
     const name = new FormData(event.currentTarget as HTMLFormElement).get("name") as string
     const found = nameProblem(name)
-    if (found) return setProblem(`Name: ${found}`)
+    if (found) return setProblems({ name: found })
     const failed = await onSave(name)
-    if (failed) return setProblem(`Not saved: ${failed}`)
+    if (failed) return setProblems({ save: failed })
     dialog.current?.close()
   }
 
   async function remove() {
     if (group && group.links.length > 0 && !asking) return setAsking(true)
     const failed = await onRemove?.()
-    if (failed) return setProblem(`Not saved: ${failed}`)
+    if (failed) {
+      setAsking(false)
+      return setProblems({ save: failed })
+    }
     dialog.current?.close()
+  }
+
+  // Escape during the question goes back to the group, not out.
+  function onCancel(event: Event) {
+    if (!asking) return
+    event.preventDefault()
+    setAsking(false)
   }
 
   const count = group?.links.length ?? 0
   return (
-    <dialog ref={dialog} class="dialog" onClose={onClose}>
-      <form onSubmit={save} noValidate>
-        <h2>{group ? "Change the group" : "Add a group"}</h2>
-        <label>
-          Name
-          <input name="name" defaultValue={group?.name} autocomplete="off" />
-        </label>
-        {problem && <p class="field-error">{problem}</p>}
-        {asking && (
-          <p class="field-error" role="alert">
-            Remove {group?.name} and its {count} {count === 1 ? "link" : "links"}?
-          </p>
-        )}
+    <dialog ref={dialog} class="dialog" onClose={onClose} onCancel={onCancel}>
+      <form onSubmit={save} noValidate hidden={asking}>
+        <h2>{group ? "Edit group" : "Add group"}</h2>
+        <Field label="Name" name="name" value={group?.name} problem={problems.name} />
+        {problems.save && <FieldError>Not saved: {problems.save}</FieldError>}
         <div class="dialog-actions">
-          <button type="submit">Save</button>
           {onRemove && (
-            <button type="button" onClick={remove}>
-              {asking ? "Yes, remove" : "Remove"}
+            <button type="button" class="button button-danger" onClick={remove}>
+              Remove
             </button>
           )}
-          <button type="button" onClick={() => dialog.current?.close()}>
+          <button type="button" class="button" onClick={() => dialog.current?.close()}>
             Cancel
+          </button>
+          <button type="submit" class="button button-primary">
+            Save
           </button>
         </div>
       </form>
+      {asking && (
+        <div class="dialog-question" role="alertdialog" aria-labelledby="remove-question">
+          <h2 id="remove-question">
+            Remove {group?.name} and its {count} {count === 1 ? "link" : "links"}?
+          </h2>
+          <div class="dialog-actions">
+            <button type="button" class="button" ref={cancel} onClick={() => setAsking(false)}>
+              Cancel
+            </button>
+            <button type="button" class="button button-danger-strong" onClick={remove}>
+              Yes, remove
+            </button>
+          </div>
+        </div>
+      )}
     </dialog>
   )
 }

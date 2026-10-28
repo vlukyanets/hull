@@ -1,8 +1,9 @@
 import { useState } from "preact/hooks"
+import type { WidgetProps } from "../props"
 
 // Searches in this tab with the browser's default engine; Firefox and
-// Chromium both have search.query.
-export function Search() {
+// Chromium both have search.query. Off in edit mode.
+export function Search({ editing }: WidgetProps) {
   const [error, setError] = useState<string>()
 
   async function submit(event: SubmitEvent) {
@@ -32,6 +33,7 @@ export function Search() {
           placeholder="Search"
           autocomplete="off"
           autofocus
+          disabled={editing}
         />
       </form>
       {error && (

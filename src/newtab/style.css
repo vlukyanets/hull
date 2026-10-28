@@ -1,5 +1,6 @@
 /* One column, from the top; the widgets come in the config's order. */
 .page {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -276,22 +277,142 @@
   }
 }
 
-/* Edit mode: tiles and group names are buttons to click and drag. Its
-   own look comes with the next part of the design. */
+/* Edit mode: a ground of its own and a banner; the clock and search fade;
+   groups become cards, and tiles and group names buttons to click and
+   drag. */
 
-.editing .tile,
-.editing .group-name button,
-.editing .group-add {
-  border: 0;
-  background: none;
+.page.editing {
+  gap: 40px;
+  padding-top: 96px;
+  background: var(--bg-edit);
+}
+
+.edit-banner {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 40px;
+  margin: 0;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 13px;
+  line-height: 16px;
+}
+
+.edit-banner svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.edit-banner strong {
+  font-weight: 600;
+}
+
+.editing .clock,
+.editing .search {
+  opacity: 0.45;
+}
+
+.edit.done {
+  padding: 8px 14px;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 600;
+}
+
+.edit.done:hover {
+  background: var(--accent-hover);
+  color: var(--on-accent);
+}
+
+.editing .links {
+  gap: 16px;
+}
+
+.editing .group {
+  position: relative;
+  gap: 8px;
+  padding: 12px 16px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+}
+
+.editing .group-name {
+  padding-left: 0;
+}
+
+.editing .group-name button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px 6px 6px;
+  border: 1px solid transparent;
+  border-radius: var(--r-sm);
+  background: transparent;
   color: inherit;
   font: inherit;
-  cursor: pointer;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  cursor: grab;
+}
+
+.editing .group-name button:hover {
+  border-color: var(--line-strong);
+  color: var(--text);
+}
+
+.grip {
+  fill: currentColor;
+}
+
+/* The group being dragged: a dashed outline where it was. */
+.editing .group.dragging {
+  border: 1.5px dashed var(--line-strong);
+  background: transparent;
+}
+
+.editing .group.dragging > * {
+  opacity: 0.4;
+}
+
+/* Where a dragged group lands: a bar above or below the group under it. */
+.editing .over-before::before,
+.editing .over-after::after {
+  position: absolute;
+  right: 0;
+  left: 0;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--accent);
+  content: "";
+}
+
+.editing .over-before::before {
+  top: -10px;
+}
+
+.editing .over-after::after {
+  bottom: -10px;
 }
 
 .editing .tile {
-  outline: 1px dashed var(--line-strong);
+  border: 0;
+  background: transparent;
+  font: inherit;
   cursor: grab;
+}
+
+.editing .tile:hover {
+  background: transparent;
 }
 
 /* Only the tile itself is a drop target, not the letter and name in it. */
@@ -299,35 +420,74 @@
   pointer-events: none;
 }
 
-.editing .tile-add {
-  cursor: pointer;
+.editing .tile-letter {
+  border: 1px dashed var(--line-strong);
+}
+
+.editing .tile:hover .tile-letter {
+  border: 1px solid var(--accent);
+  background: var(--accent-soft);
+}
+
+/* The tile being dragged: hollow where it was. */
+.editing .tile.dragging .tile-letter {
+  border: 1.5px dashed var(--line-strong);
+  background: transparent;
+  color: transparent;
+}
+
+.editing .tile.dragging .tile-name {
+  color: var(--text-muted);
   opacity: 0.6;
 }
 
-.editing .tile-add .tile-letter {
-  background: none;
-  border-style: dashed;
+/* Where a dragged tile lands: it takes this place, or goes last on "+". */
+.editing .tile.over .tile-letter {
+  border: 2px solid var(--accent);
+  background: var(--accent-soft);
 }
 
-.editing .group-name button {
-  padding: 0;
-  font-weight: inherit;
-  letter-spacing: inherit;
-  text-transform: inherit;
-  text-decoration: underline dotted;
-  cursor: grab;
+.editing .tile.over .tile-name {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.editing .tile-add {
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.editing .tile-add .tile-letter {
+  background: transparent;
+}
+
+.plus {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
 }
 
 .editing .group-add {
-  align-self: flex-start;
-  padding: 8px 16px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 56px;
   border: 1px dashed var(--line-strong);
-  border-radius: var(--r-tile);
+  border-radius: var(--r-lg);
+  background: transparent;
+  color: var(--text-muted);
+  font: inherit;
   font-size: 14px;
+  line-height: 20px;
+  cursor: pointer;
 }
 
-.editing .over {
-  background: var(--accent-soft);
+.editing .group-add:hover {
+  background: var(--surface-sunk);
+  color: var(--text);
 }
 
 .dialog {
@@ -338,48 +498,87 @@
   border-radius: var(--r-lg);
   background: var(--surface);
   color: var(--text);
+  box-shadow: var(--shadow-dialog);
 }
 
 .dialog::backdrop {
-  background: rgb(0 0 0 / 0.4);
+  background: var(--backdrop);
 }
 
-.dialog form {
+.dialog form,
+.dialog-question {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
+}
+
+/* The form, hidden behind the question to remove a group. */
+.dialog form[hidden] {
+  display: none;
 }
 
 .dialog h2 {
-  margin: 0;
+  margin: 0 0 4px;
   font-size: 18px;
+  font-weight: 600;
+  line-height: 24px;
 }
 
-.dialog label {
+.field {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  font-size: 14px;
+  gap: 6px;
 }
 
-.dialog input {
-  padding: 8px;
+.field label {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 16px;
+}
+
+.field input {
+  box-sizing: border-box;
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-md);
+  background: var(--bg);
+  color: var(--text);
   font: inherit;
   font-size: 15px;
 }
 
+.field input[aria-invalid] {
+  border-color: var(--danger);
+}
+
 .field-error {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   margin: 0;
-  font-size: 14px;
+  color: var(--danger);
+  font-size: 13px;
+  line-height: 16px;
+}
+
+.field-error svg {
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
 }
 
 .dialog-actions {
   display: flex;
+  align-items: center;
+  justify-content: flex-end;
   gap: 8px;
-  margin-top: 8px;
+  padding-top: 4px;
 }
 
-.dialog-actions button {
-  padding: 8px 16px;
-  font: inherit;
+/* Remove stands apart, on the left. */
+.dialog-actions .button-danger {
+  margin-right: auto;
 }

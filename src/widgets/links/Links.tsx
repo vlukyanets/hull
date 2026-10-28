@@ -27,9 +27,18 @@ type Dragged = { link: true; at: Place } | { link: false; group: number }
 // browser from opening it when it is dropped elsewhere.
 const DRAG_TYPE = "application/x-hull"
 
+function Plus({ size }: { size: number }) {
+  return (
+    <svg class="plus" aria-hidden="true" width={size} height={size} viewBox="0 0 24 24">
+      <path d="M12 5v14M5 12h14" />
+    </svg>
+  )
+}
+
 export function Links({ config, editing, save }: WidgetProps) {
   const [open, setOpen] = useState<Open>()
   const [over, setOver] = useState<string>()
+  const [source, setSource] = useState<string>()
   const dragged = useRef<Dragged>(undefined)
 
   if (!editing) {
@@ -56,18 +65,38 @@ export function Links({ config, editing, save }: WidgetProps) {
     )
   }
 
-  function drag(what: Dragged, label: string) {
+  // key marks the dragged one, drawn hollow where it was.
+  function drag(what: Dragged, key: string, label: string) {
     return (event: DragEvent) => {
       dragged.current = what
       event.dataTransfer?.setData(DRAG_TYPE, label)
       if (event.dataTransfer) event.dataTransfer.effectAllowed = "move"
+      // After the browser has taken its picture of it for the drag, or
+      // the picture would be hollow too.
+      setTimeout(() => setSource(key))
     }
   }
 
   function dragEnd() {
     dragged.current = undefined
     setOver(undefined)
+    setSource(undefined)
   }
+
+  // A group dropped on another takes its place: before it when it comes
+  // from below, after it when it comes from above; the bar shows which.
+  function groupClass(g: number) {
+    const what = dragged.current
+    let name = "group"
+    if (source === `group ${g}`) name += " dragging"
+    if (over === `group ${g}`) {
+      name += what && !what.link && what.group < g ? " over-after" : " over-before"
+    }
+    return name
+  }
+
+  const tileClass = (key: string, extra = "") =>
+    `tile${extra}${over === key ? " over" : ""}${source === key ? " dragging" : ""}`
 
   // A drop target for links (link true) or groups; key marks it while a
   // drag is over it.
@@ -103,19 +132,23 @@ export function Links({ config, editing, save }: WidgetProps) {
   return (
     <section class="links editing">
       {config.groups.map((group, g) => (
-        <section
-          class={`group${over === `group ${g}` ? " over" : ""}`}
-          key={g}
-          {...target(false, `group ${g}`, dropGroup(g))}
-        >
+        <section class={groupClass(g)} key={g} {...target(false, `group ${g}`, dropGroup(g))}>
           <h2 class="group-name">
             <button
               type="button"
               draggable
-              onDragStart={drag({ link: false, group: g }, group.name)}
+              onDragStart={drag({ link: false, group: g }, `group ${g}`, group.name)}
               onDragEnd={dragEnd}
               onClick={() => setOpen({ link: false, group: g })}
             >
+              <svg class="grip" aria-hidden="true" width="12" height="16" viewBox="0 0 12 16">
+                <circle cx="3" cy="3" r="1.4" />
+                <circle cx="9" cy="3" r="1.4" />
+                <circle cx="3" cy="8" r="1.4" />
+                <circle cx="9" cy="8" r="1.4" />
+                <circle cx="3" cy="13" r="1.4" />
+                <circle cx="9" cy="13" r="1.4" />
+              </svg>
               {group.name}
             </button>
           </h2>
@@ -124,9 +157,13 @@ export function Links({ config, editing, save }: WidgetProps) {
               <li key={i}>
                 <button
                   type="button"
-                  class={`tile${over === `link ${g} ${i}` ? " over" : ""}`}
+                  class={tileClass(`link ${g} ${i}`)}
                   draggable
-                  onDragStart={drag({ link: true, at: { group: g, index: i } }, link.name)}
+                  onDragStart={drag(
+                    { link: true, at: { group: g, index: i } },
+                    `link ${g} ${i}`,
+                    link.name,
+                  )}
                   onDragEnd={dragEnd}
                   onClick={() => setOpen({ link: true, group: g, index: i })}
                   {...target(true, `link ${g} ${i}`, dropLink({ group: g, index: i }))}
@@ -141,15 +178,15 @@ export function Links({ config, editing, save }: WidgetProps) {
             <li>
               <button
                 type="button"
-                class={`tile tile-add${over === `end ${g}` ? " over" : ""}`}
+                class={tileClass(`end ${g}`, " tile-add")}
                 aria-label={`Add a link to ${group.name}`}
                 onClick={() => setOpen({ link: true, group: g })}
                 {...target(true, `end ${g}`, dropLink({ group: g, index: group.links.length }))}
               >
                 <span class="tile-letter" aria-hidden="true">
-                  +
+                  <Plus size={20} />
                 </span>
-                <span class="tile-name">Add</span>
+                <span class="tile-name">Add link</span>
               </button>
             </li>
           </ul>
@@ -157,11 +194,12 @@ export function Links({ config, editing, save }: WidgetProps) {
       ))}
       <button
         type="button"
-        class={`group-add${over === "group end" ? " over" : ""}`}
+        class={`group-add${over === "group end" ? " over-before" : ""}`}
         onClick={() => setOpen({ link: false })}
         {...target(false, "group end", dropGroup(config.groups.length))}
       >
-        + Group
+        <Plus size={16} />
+        Group
       </button>
       {open && dialog(open)}
     </section>
