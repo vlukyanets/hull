@@ -1,4 +1,5 @@
 import type { Config } from "../../config"
+import { tileHref } from "./href"
 import { firstLetter } from "./letter"
 
 export function Links({ config }: { config: Config }) {
@@ -10,7 +11,7 @@ export function Links({ config }: { config: Config }) {
           <ul class="tiles">
             {group.links.map((link, j) => (
               <li key={j}>
-                <a class="tile" href={link.url}>
+                <a class="tile" href={tileHref(link.url)}>
                   <span class="tile-letter" aria-hidden="true">
                     {firstLetter(link.name)}
                   </span>

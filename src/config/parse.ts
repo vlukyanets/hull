@@ -99,12 +99,8 @@ function link([value, path]: [unknown, string]): Link {
   return { name: name(t.name, `${path}.name`), url: url(t.url, `${path}.url`) }
 }
 
-// Only http and https: a link must never run code (javascript:) or carry
-// a document of its own (data:).
+// Any text: the owner's links are theirs to write, whatever the scheme.
 function url(value: unknown, path: string): string {
-  const parsed = typeof value === "string" ? URL.parse(value) : null
-  if (parsed?.protocol !== "http:" && parsed?.protocol !== "https:") {
-    throw new Invalid(`${path}: must be an http or https URL`)
-  }
-  return value as string
+  if (typeof value !== "string") throw new Invalid(`${path}: must be text`)
+  return value
 }

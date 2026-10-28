@@ -102,8 +102,11 @@ links = [
   write TOML from the stored config, so an exported file always imports,
   and comments of an imported file are not kept. Export is a download of
   `hull.toml` from the page, with no `downloads` permission.
-- A link is `http` or `https`, nothing else: a link must never run code
-  (`javascript:`) or carry a document of its own (`data:`).
+- The URL of a link is any text, written as the owner wants it; hull
+  does not check it and stores it as typed. A URL with no scheme, such
+  as `nas.lan` or `localhost:8000`, would be a page inside hull, so the
+  tile puts `https://` in front; a device with only http needs `http://`
+  written out.
 - `groups` may be left out; it means no links.
 - The search has no settings: it uses the engine the browser's own
   settings make the default.
