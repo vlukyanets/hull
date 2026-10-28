@@ -5,10 +5,11 @@ browsers: links to your own services, a search box, a clock and notes,
 with the config in TOML. Later, widgets for your own programs.
 
 The project is an early prototype: the new-tab page shows a clock, the
-date, a search box and your links. You edit the config as TOML on the
-options page: the "Edit" link in the corner of the new tab, or hull in
-about:addons; it also imports and exports the config as a TOML file. The
-plan is in [`docs/architecture.md`](docs/architecture.md).
+date, a search box and your links. "Edit" in the corner of the new tab
+adds, changes, moves and removes links and groups in place. "Settings",
+next to it in edit mode, or hull in about:addons opens the options page:
+the whole config as TOML, and its import and export as a file. The plan
+is in [`docs/architecture.md`](docs/architecture.md).
 
 ## Requirements
 

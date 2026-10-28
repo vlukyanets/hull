@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest"
 import defaultToml from "./default.toml?raw"
-import { parseConfig } from "./parse"
+import { nameProblem, parseConfig } from "./parse"
 
 describe("parseConfig", () => {
   test("accepts the default config", () => {
@@ -147,5 +147,16 @@ links = [{ name = "A", url = "https://example.com", icon = "a.png" }]
   test("refuses a search section: hull searches with the browser's engine", () => {
     const toml = 'version = 1\n[layout]\nwidgets = ["search"]\n[search]\nengine = "DuckDuckGo"\n'
     expect(parseConfig(toml)).toEqual({ ok: false, error: "search: unknown key" })
+  })
+})
+
+// The checks of single fields, for the dialogs of edit mode.
+describe("nameProblem", () => {
+  test("passes a good name", () => {
+    expect(nameProblem("Router")).toBeUndefined()
+  })
+
+  test("gives the reason as the TOML check does, without the key", () => {
+    expect(nameProblem("  ")).toBe("must not be empty")
   })
 })

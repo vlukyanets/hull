@@ -9,17 +9,34 @@
   padding: 2rem;
 }
 
-.edit {
+.corner {
   position: fixed;
   right: 1rem;
   bottom: 1rem;
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
   font-size: 0.875rem;
+}
+
+.corner > * {
   opacity: 0.5;
 }
 
-.edit:hover,
-.edit:focus-visible {
+.corner > :hover,
+.corner > :focus-visible {
   opacity: 1;
+}
+
+/* Edit is a button that looks like the link it was. */
+.edit {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
 }
 
 .clock {
@@ -121,4 +138,112 @@
   text-align: center;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* Edit mode: tiles and group names are buttons to click and drag. */
+
+.editing .tile,
+.editing .group-name button,
+.editing .group-add {
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.editing .tile {
+  width: 100%;
+  outline: 1px dashed color-mix(in srgb, CanvasText 25%, Canvas);
+  cursor: grab;
+}
+
+/* Only the tile itself is a drop target, not the letter and name in it. */
+.editing .tile > * {
+  pointer-events: none;
+}
+
+.editing .tile-add {
+  cursor: pointer;
+  opacity: 0.6;
+}
+
+.editing .tile-add .tile-letter {
+  background: none;
+  outline: 1px dashed color-mix(in srgb, CanvasText 40%, Canvas);
+}
+
+.editing .group-name button {
+  padding: 0;
+  font-weight: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  text-decoration: underline dotted;
+  cursor: grab;
+}
+
+.editing .group-add {
+  align-self: flex-start;
+  padding: 0.5rem 1rem;
+  border: 1px dashed color-mix(in srgb, CanvasText 40%, Canvas);
+  border-radius: 0.75rem;
+  font-size: 0.875rem;
+}
+
+.editing .over {
+  background: color-mix(in srgb, Highlight 25%, Canvas);
+}
+
+.dialog {
+  box-sizing: border-box;
+  width: min(100% - 2rem, 28rem);
+  padding: 1.5rem;
+  border: 1px solid color-mix(in srgb, CanvasText 20%, Canvas);
+  border-radius: 0.75rem;
+  background: Canvas;
+  color: CanvasText;
+}
+
+.dialog::backdrop {
+  background: rgb(0 0 0 / 0.4);
+}
+
+.dialog form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.dialog h2 {
+  margin: 0;
+  font-size: 1.125rem;
+}
+
+.dialog label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.875rem;
+}
+
+.dialog input {
+  padding: 0.5rem;
+  font: inherit;
+  font-size: 1rem;
+}
+
+.field-error {
+  margin: 0;
+  font-size: 0.875rem;
+}
+
+.dialog-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.dialog-actions button {
+  padding: 0.5rem 1rem;
+  font: inherit;
 }
